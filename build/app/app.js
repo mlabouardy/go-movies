@@ -1,0 +1,1 @@
+var MainCtrl=function(n,o){n.refresh=function(){o.get("/movies").then(function(n){console.log(n)})}};angular.module("app",[]).controller("MainCtrl",MainCtrl);
