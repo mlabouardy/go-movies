@@ -1,6 +1,7 @@
 var gulp = require('gulp');
 var del = require("del");
 var sass = require("gulp-sass");
+var inject= require("gulp-inject");
 var uglify = require("gulp-uglify");
 var webserver = require('gulp-webserver');
 
@@ -9,6 +10,13 @@ gulp.task("compile", function(){
   return gulp.src("public/assets/css/*.scss")
              .pipe(sass().on("error", sass.logError))
              .pipe(gulp.dest("build/assets/css/"))
+})
+
+gulp.task("inject", function(){
+  var sources = gulp.src(["public/app/**/*.js", "public/assets/**/*.css"], {read:false}, {relative:false})
+  return gulp.src("public/index.html")
+            .pipe(inject(sources))
+            .pipe(gulp.dest("public"))
 })
 
 gulp.task("compress", function(){
