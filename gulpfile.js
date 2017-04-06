@@ -29,7 +29,14 @@ gulp.task("clean", function(cb){
   del(["build"], cb)
 })
 
+
+
 gulp.task('build', ["compile", "inject"], function(){
+  return gulp.src(["public/**/*", "!public/**/*.scss"])
+             .pipe(gulp.dest("build"))
+})
+
+gulp.task("resources", function(){
   return gulp.src(["public/**/*", "!public/**/*.scss"])
              .pipe(gulp.dest("build"))
 })
@@ -37,6 +44,10 @@ gulp.task('build', ["compile", "inject"], function(){
 gulp.task("watch", function(){
   gulp.watch(["public/**/*.scss"], ["compile"]).on("change", function(e){
     console.log("SASS file " + e.path + " has been compiled !")
+  })
+
+  gulp.watch(["public/**/*.html", "public/app/**/*.js"], ["resources"]).on("change", function(e){
+    console.log("File "+e.path+" has been moved to build")
   })
 })
 
