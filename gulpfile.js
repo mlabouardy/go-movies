@@ -13,10 +13,10 @@ gulp.task("compile", function(){
 })
 
 gulp.task("inject", function(){
-  var sources = gulp.src(["public/app/**/*.js", "public/assets/**/*.css"], {read:false}, {relative:false})
-  return gulp.src("public/index.html")
-            .pipe(inject(sources))
-            .pipe(gulp.dest("public"))
+  var sources = gulp.src(["build/app/**/*.js", "build/assets/**/*.css"], {read:false})
+  return gulp.src("build/index.html")
+            .pipe(inject(sources, {ignorePath:'build'}))
+            .pipe(gulp.dest("build"))
 })
 
 gulp.task("compress", function(){
@@ -29,7 +29,7 @@ gulp.task("clean", function(cb){
   del(["build"], cb)
 })
 
-gulp.task('build', ["compile"], function(){
+gulp.task('build', ["compile", "inject"], function(){
   return gulp.src(["public/**/*", "!public/**/*.scss"])
              .pipe(gulp.dest("build"))
 })
