@@ -15,13 +15,14 @@ var gulpsync = require("gulp-sync")(gulp);
 var input = {
   sass : 'public/assets/scss/**/*.scss',
   javascript : 'public/app/**/*.js',
-  html : 'public/**/*.html'
+  html : 'public/**/*.html',
+  bower : 'public/lib/*'
 }
 
 var output = {
-  css : 'build/assets/css',
-  javascript : 'build/assets/javascript',
-  build: 'build'
+  css : 'test/assets/css',
+  javascript : 'test/assets/javascript',
+  build: 'test'
 }
 
 
@@ -44,19 +45,28 @@ gulp.task("build-css", function(){
 gulp.task("build-js", function(){
   return gulp.src(input.javascript)
              .pipe(concat("bundle.js"))
-             .pipe(uglify({
-               mangle: false
-             }))
              .pipe(gulp.dest(output.javascript))
 });
 
 gulp.task("build-html", function(){
-  return gulp.src([input.html])
+  return gulp.src(["!public/lib/**/*.html", "public/**/*.html"])
              .pipe(gulp.dest(output.build))
 });
 
-gulp.task("build-bower", function(){
-  return gulp.src(mainBowerFiles({
+gulp.task("build-bower-css", function(){
+  return gulp.src(mainBowerFiles("**/*.css", {
+              paths: {
+                bowerDirectory: "public/lib",
+                bowerrc: "public/.bowerrrc",
+                bowerJson: "public/bower.json"
+              }
+            }))
+            .pipe(concat("master.css"))
+            .pipe(gulp.dest(output.css))
+})
+
+gulp.task("build-bower-js", function(){
+  return gulp.src(mainBowerFiles("**/*.js", {
                 paths:{
                   bowerDirectory: 'public/lib',
                   bowerrc: 'public/.bowerrc',
@@ -64,13 +74,12 @@ gulp.task("build-bower", function(){
                 }
               }))
              .pipe(concat("vendor.js"))
-             .pipe(uglify())
              .pipe(gulp.dest(output.javascript))
 })
 
 gulp.task("inject", function(){
-  var sources = gulp.src([output.javascript+"/bundle.js", output.css+"/**/*.css"], {read:false})
-  var vendor = gulp.src([output.javascript+"/vendor.js"], {read: false})
+  var sources = gulp.src([output.javascript+"/bundle.js", output.css+"/default.css"], {read:false})
+  var vendor = gulp.src([output.javascript+"/vendor.js", output.css+"/master.css"], {read: false})
   return gulp.src(output.build + "/index.html")
             .pipe(inject(series(vendor, sources), {ignorePath: output.build}))
             .pipe(gulp.dest(output.build))
@@ -89,12 +98,16 @@ gulp.task("watch", function(){
   gulp.watch([input.html], gulpsync.sync(["build-html", "inject"])).on("change", function(e){
     console.log("Building html file " + e.path)
   })
+
+  gulp.watch([input.bower], gulpsync.sync(["build-bower-js", "build-bower-css"])).on("change", function(e){
+    console.log("Injecting " + e.path)
+  })
 })
 
-gulp.task("build", gulpsync.sync(["build-html", "build-css", "build-bower", "build-js", "inject"]))
+gulp.task("build", gulpsync.sync(["build-html", "build-css", "build-bower-css", "build-bower-js", "build-js", "inject"]))
 
 gulp.task('serve', function(){
-  gulp.src('build')
+  gulp.src(output.build)
     .pipe(webserver({
       livereload: true,
       directoryListing: false,
@@ -102,5 +115,3 @@ gulp.task('serve', function(){
       port: 3000
     }))
 })
-
-gulp.task("default", ['watch'])

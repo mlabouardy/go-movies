@@ -6,8 +6,8 @@
     <!-- inject:css -->
     <!-- endinject -->
   </head>
-  <body ng-controller="MainCtrl">
-    <table>
+  <body ng-controller="MainCtrl" class="container">
+    <table class="table table-hover">
       <thead>
         <tr>
           <td>Name</td>
@@ -17,10 +17,14 @@
         </tr>
       </thead>
       <tbody>
-
+        <tr ng-repeat="movie in movies">
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
       </tbody>
     </table>
-    Ok
   </body>
   <!-- inject:js -->
   <!-- endinject -->

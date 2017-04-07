@@ -17,6 +17,8 @@
   ],
   "dependencies": {
     "angular": "^1.6.4",
-    "restangular": "^1.6.1"
+    "restangular": "^1.6.1",
+    "bootstrap-css": "^3.3.7",
+    "jquery": "^3.2.1"
   }
 }

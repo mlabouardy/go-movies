@@ -1,1 +1,1 @@
-angular.module('app.services', ["restangular"]);
+angular.module('app.services', []);
