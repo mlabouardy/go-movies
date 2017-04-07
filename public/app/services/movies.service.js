@@ -1,7 +1,7 @@
 var MovieService = function(Restangular){
   var self = this;
   self.getMovies = function(){
-    return Restangular.get('/movies');
+    return Restangular.all('/movies').getList();
   };
 };
 

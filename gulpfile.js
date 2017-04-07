@@ -41,10 +41,10 @@ gulp.task("build-css", function(){
 
 gulp.task("build-js", function(){
   return gulp.src(input.javascript)
-             .pipe(sourcemaps.init())
              .pipe(concat("bundle.js"))
-             .pipe(uglify())
-             .pipe(sourcemaps.write())
+             .pipe(uglify({
+               mangle: false
+             }))
              .pipe(gulp.dest(output.javascript))
 });
 
@@ -88,10 +88,10 @@ gulp.task("watch", function(){
   })
 })
 
-gulp.task("build", ["build-html", "build-css", "build-js", "build-bower", "inject"])
+gulp.task("build", ["build-html", "build-css", "build-bower", "build-js", "inject"])
 
 gulp.task('serve', function(){
-  gulp.src('test')
+  gulp.src('build')
     .pipe(webserver({
       livereload: true,
       directoryListing: false,
