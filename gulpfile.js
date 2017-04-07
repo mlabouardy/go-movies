@@ -7,18 +7,18 @@ var jshint = require("gulp-jshint");
 var sourcemaps = require("gulp-sourcemaps");
 var concat = require("gulp-concat");
 var webserver = require('gulp-webserver');
+var plugins = require("gulp-load-plugins")
+var mainBowerFiles = require("main-bower-files");
 
 var input = {
   sass : 'public/assets/scss/**/*.scss',
   javascript : 'public/app/**/*.js',
-  html : 'public/**/*.html',
-  plugins : 'public/lib/*'
+  html : 'public/**/*.html'
 }
 
 var output = {
   css : 'build/assets/css',
   javascript : 'build/assets/javascript',
-  plugins: 'build/lib'
   build: 'build'
 }
 
@@ -53,13 +53,21 @@ gulp.task("build-html", function(){
              .pipe(gulp.dest(output.build))
 });
 
-gulp.task("build-plugins", function(){
-  return gulp.src([input.plugins])
-             .pipe(gulp.dest(output.lib))
+gulp.task("build-bower", function(){
+  return gulp.src(mainBowerFiles({
+                paths:{
+                  bowerDirectory: 'public/lib',
+                  bowerrc: 'public/.bowerrc',
+                  bowerJson: 'public/bower.json'
+                }
+              }))
+             .pipe(concat("vendor.js"))
+             .pipe(uglify())
+             .pipe(gulp.dest(output.javascript))
 })
 
 gulp.task("inject", function(){
-  var sources = gulp.src([output.javascript, output.css], {read:false})
+  var sources = gulp.src([output.javascript+"/**/*.js", output.css+"/**/*.css"], {read:false})
   return gulp.src(output.build + "/index.html")
             .pipe(inject(sources, {ignorePath: output.build}))
             .pipe(gulp.dest(output.build))
@@ -80,10 +88,10 @@ gulp.task("watch", function(){
   })
 })
 
-gulp.task("build", ["build-html", "build-css", "build-js", "build-plugins", "inject"])
+gulp.task("build", ["build-html", "build-css", "build-js", "build-bower", "inject"])
 
 gulp.task('serve', function(){
-  gulp.src('build')
+  gulp.src('test')
     .pipe(webserver({
       livereload: true,
       directoryListing: false,
