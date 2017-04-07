@@ -9,6 +9,8 @@ var concat = require("gulp-concat");
 var webserver = require('gulp-webserver');
 var plugins = require("gulp-load-plugins")
 var mainBowerFiles = require("main-bower-files");
+var series = require("stream-series");
+var gulpsync = require("gulp-sync")(gulp);
 
 var input = {
   sass : 'public/assets/scss/**/*.scss',
@@ -67,28 +69,29 @@ gulp.task("build-bower", function(){
 })
 
 gulp.task("inject", function(){
-  var sources = gulp.src([output.javascript+"/**/*.js", output.css+"/**/*.css"], {read:false})
+  var sources = gulp.src([output.javascript+"/bundle.js", output.css+"/**/*.css"], {read:false})
+  var vendor = gulp.src([output.javascript+"/vendor.js"], {read: false})
   return gulp.src(output.build + "/index.html")
-            .pipe(inject(sources, {ignorePath: output.build}))
+            .pipe(inject(series(vendor, sources), {ignorePath: output.build}))
             .pipe(gulp.dest(output.build))
 })
 
 gulp.task("watch", function(){
-  gulp.watch([input.scss], ["build-css"]).on("change", function(e){
+  gulp.watch([input.sass], ["build-css"]).on("change", function(e){
     console.log("SASS file " + e.path + " has been compiled !")
   })
 
-  gulp.watch([input.javascript], ["jshint", "build-js"]).on("change", function(e){
+  gulp.watch([input.javascript], gulpsync.sync(["jshint", "build-js"])).on("change", function(e){
     console.log("Running jshint analyser on " + e.path)
     console.log("Building JS file " + e.path)
   })
 
-  gulp.watch([input.html], ["build-html"]).on("change", function(e){
+  gulp.watch([input.html], gulpsync.sync(["build-html", "inject"])).on("change", function(e){
     console.log("Building html file " + e.path)
   })
 })
 
-gulp.task("build", ["build-html", "build-css", "build-bower", "build-js", "inject"])
+gulp.task("build", gulpsync.sync(["build-html", "build-css", "build-bower", "build-js", "inject"]))
 
 gulp.task('serve', function(){
   gulp.src('build')
@@ -99,3 +102,5 @@ gulp.task('serve', function(){
       port: 3000
     }))
 })
+
+gulp.task("default", ['watch'])

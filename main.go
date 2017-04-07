@@ -15,5 +15,5 @@ func main() {
 	router.HandleFunc("/movies/{id}", DeleteMovieEndPoint).Methods("DELETE")
 	router.HandleFunc("/movies/{id}", GetMovieEndPoint).Methods("GET")
 	router.Handle("/", http.FileServer(http.Dir("./public/")))
-	http.ListenAndServe(":5000", router)
+	http.ListenAndServe("localhost:5000", router)
 }
