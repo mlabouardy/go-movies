@@ -3,8 +3,29 @@ var del = require("del");
 var sass = require("gulp-sass");
 var inject= require("gulp-inject");
 var uglify = require("gulp-uglify");
+var jshint = require("gulp-jshint");
 var webserver = require('gulp-webserver');
 
+
+gulp.task("clean", function(cb){
+  del(["build"], cb)
+})
+
+gulp.task('serve', function(){
+  gulp.src('build')
+    .pipe(webserver({
+      livereload: true,
+      directoryListing: false,
+      open: true,
+      port: 3000
+    }))
+})
+
+gulp.task('jshint', function(){
+  return gulp.src("public/app/**/*.js")
+             .pipe(jshint())
+             .pipe(jshint.reporter('jshint-stylish'))
+})
 
 gulp.task("compile", function(){
   return gulp.src("public/assets/css/*.scss")
@@ -25,40 +46,24 @@ gulp.task("compress", function(){
       .pipe(gulp.dest("build"))
 })
 
-gulp.task("clean", function(cb){
-  del(["build"], cb)
-})
-
-
 
 gulp.task('build', ["compile", "inject"], function(){
   return gulp.src(["public/**/*", "!public/**/*.scss"])
              .pipe(gulp.dest("build"))
 })
 
-gulp.task("resources", function(){
-  return gulp.src(["public/**/*", "!public/**/*.scss"])
-             .pipe(gulp.dest("build"))
-})
+
 
 gulp.task("watch", function(){
   gulp.watch(["public/**/*.scss"], ["compile"]).on("change", function(e){
     console.log("SASS file " + e.path + " has been compiled !")
   })
 
-  gulp.watch(["public/**/*.html", "public/app/**/*.js"], ["resources"]).on("change", function(e){
-    console.log("File "+e.path+" has been moved to build")
+  gulp.watch(["public/app/**/*.js"], ["jshint"]).on("change", function(e){
+    console.log("Running jshint analyser on " + e.path)
   })
 })
 
-gulp.task('serve', function(){
-  gulp.src('build')
-    .pipe(webserver({
-      livereload: true,
-      directoryListing: false,
-      open: true,
-      port: 3000
-    }))
-})
+
 
 gulp.task("start", ["watch", "serve"])
