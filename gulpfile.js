@@ -115,3 +115,11 @@ gulp.task('serve', function(){
       port: 3000
     }))
 })
+
+gulp.task("prod",function(){
+ // with minify
+})
+
+gulp.task("dev", function(){
+ // without minify
+}
